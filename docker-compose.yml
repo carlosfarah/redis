@@ -1,0 +1,33 @@
+version: '3.5'
+services:
+  master:
+    image: erlong15/redis-cluster
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 6379
+        target: 6379
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: dnsrr
+    networks:
+      - redis
+  slave:
+    image: erlong15/redis-cluster
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 6380
+        target: 6379
+    deploy:
+      replicas: 3
+      endpoint_mode: dnsrr
+    networks:
+      - redis
+networks:
+  redis:
+    driver: overlay
+    attachable: true
